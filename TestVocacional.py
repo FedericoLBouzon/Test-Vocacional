@@ -6,7 +6,6 @@ import os
 def resource_path(relative_path):
     """ Get absolute path to resource, works for dev and for PyInstaller """
     try:
-        # PyInstaller creates a temp folder and stores path in _MEIPASS
         base_path = sys._MEIPASS
     except Exception:
         base_path = os.path.abspath(".")
@@ -14,10 +13,11 @@ def resource_path(relative_path):
     return os.path.join(base_path, relative_path)
 
 def realizar_test():
-    global pregunta_idx, respuestas, label_pregunta, btn_si, btn_no
+    global pregunta_idx, respuestas, label_pregunta, btn_si, btn_no, label_titulo
 
-    # Eliminar el botón de "Comenzar Test"
+    # Ocultar el botón de "Comenzar Test" y mostrar el título
     btn_comenzar.pack_forget()
+    label_titulo.pack()
 
     # Inicializar variables
     pregunta_idx = 0
@@ -29,7 +29,7 @@ def realizar_test():
     btn_no.pack()
 
 def responder(respuesta):
-    global pregunta_idx, respuestas, label_pregunta, btn_si, btn_no
+    global pregunta_idx, respuestas, label_pregunta, btn_si, btn_no, btn_repetir
 
     # Guardar la respuesta
     respuestas.append(respuesta)
@@ -77,7 +77,7 @@ def mostrar_resultado(carrera_sugerida):
     btn_no.pack_forget()
 
     # Mostrar resultado
-    label_pregunta.config(text="Tu carrera sugerida es: " + carrera_sugerida)
+    label_pregunta.config(text=f"¡Test Finalizado!\nTu carrera sugerida es: {carrera_sugerida}")
 
     # Mostrar imagen correspondiente a la carrera sugerida
     try:
@@ -92,15 +92,24 @@ def mostrar_resultado(carrera_sugerida):
         elif carrera_sugerida == "Periodismo":
             imagen = Image.open(resource_path("IMG/periodismo.PNG"))
 
-        imagen = imagen.resize((300, 300))  # Ajusta el tamaño de la imagen según tus necesidades
+        imagen = imagen.resize((300, 300))
 
         imagen_tk = ImageTk.PhotoImage(imagen)
         imagen_label.config(image=imagen_tk)
         imagen_label.image = imagen_tk
-        imagen_label.pack()
+        imagen_label.pack(pady=10)
+
+        # Mostrar botón para repetir el test
+        btn_repetir.pack(pady=10)
 
     except Exception as e:
         print("Error al cargar la imagen:", e)
+
+def repetir_test():
+    # Reiniciar la aplicación
+    imagen_label.pack_forget()
+    btn_repetir.pack_forget()
+    realizar_test()
 
 # Lista de preguntas
 preguntas = [
@@ -115,20 +124,27 @@ preguntas = [
 ventana = tk.Tk()
 ventana.title("Test Vocacional")
 
+# Título grande
+label_titulo = tk.Label(ventana, text="Test de Python", font=("Helvetica", 24, "bold"))
+label_titulo.pack(pady=10)
+
 # Etiqueta para mostrar las preguntas
-label_pregunta = tk.Label(ventana, text="Haz clic en 'Comenzar Test' para empezar", wraplength=400)
+label_pregunta = tk.Label(ventana, text="Haz clic en 'Comenzar Test' para empezar", wraplength=400, font=("Helvetica", 14))
 label_pregunta.pack(pady=20)
 
 # Botones de respuesta
-btn_si = tk.Button(ventana, text="Sí", command=lambda: responder("sí"))
-btn_no = tk.Button(ventana, text="No", command=lambda: responder("no"))
+btn_si = tk.Button(ventana, text="Sí", command=lambda: responder("sí"), font=("Helvetica", 12), width=10, bg="#4CAF50", fg="white")
+btn_no = tk.Button(ventana, text="No", command=lambda: responder("no"), font=("Helvetica", 12), width=10, bg="#F44336", fg="white")
 
 # Botón para comenzar el test
-btn_comenzar = tk.Button(ventana, text="Comenzar Test", command=realizar_test)
+btn_comenzar = tk.Button(ventana, text="Comenzar Test", command=realizar_test, font=("Helvetica", 14), width=20, bg="#2196F3", fg="white")
 btn_comenzar.pack(pady=20)
 
 # Etiqueta para mostrar la imagen
 imagen_label = tk.Label(ventana)
+
+# Botón para repetir el test
+btn_repetir = tk.Button(ventana, text="Repetir Test", command=repetir_test, font=("Helvetica", 14), width=20, bg="#FFC107", fg="black")
 
 # Iniciar el bucle principal de la interfaz
 ventana.mainloop()
